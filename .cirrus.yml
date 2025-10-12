@@ -1,0 +1,64 @@
+# Cirrus CI configuration for FreeBSD custom image builder
+
+freebsd_version_matrix:
+  - "13.2"
+  - "14.0"
+arch_matrix:
+  - "amd64/amd64"
+  - "arm64/aarch64"
+flavor_matrix:
+  - "desktop"
+  - "poudriere"
+
+task:
+  name: Build FreeBSD Images
+  matrix:
+    freebsd_version: $freebsd_version_matrix
+    arch: $arch_matrix
+    flavor: $flavor_matrix
+  container:
+    image: ubuntu:22.04
+  env:
+    FREEBSD_VERSION: $freebsd_version
+    FREEBSD_ARCH: $arch
+    FREEBSD_FLAVOR: $flavor
+  install_script:
+    - apt-get update
+    - apt-get install -y curl wget
+    - curl -L https://github.com/cocogitto/cocogitto/releases/latest/download/cocogitto-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /usr/local/bin
+  script:
+    - ./make.iso.with.installer.sh
+    - mkdir -p artifacts
+    - mv *.img artifacts/FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
+  artifacts:
+    path: artifacts/*.img
+
+release_task:
+  name: Release Images
+  container:
+    image: ubuntu:22.04
+  env:
+    GH_TOKEN: $GH_TOKEN
+  install_script:
+    - apt-get update
+    - apt-get install -y curl wget
+    - curl -L https://github.com/cocogitto/cocogitto/releases/latest/download/cocogitto-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /usr/local/bin
+    - curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    - apt-get update
+    - apt-get install -y gh
+  script:
+    - for flavor in desktop poudriere; do
+        if cog bump --auto ${flavor}-install/; then
+          VERSION=$(cog get-version ${flavor}-install/)
+          echo "Version: ${VERSION}"
+          echo "moving artifacts"
+          mv artifacts/*-${flavor}.img artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+          gh release create "${flavor}-v${VERSION}" \
+            --title "${flavor} v${VERSION}" \
+            --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
+            artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+        fi
+      done
+  artifacts:
+    path: artifacts/*.img
