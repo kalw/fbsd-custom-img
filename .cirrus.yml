@@ -12,12 +12,13 @@ flavor_matrix:
 
 task:
   name: Build FreeBSD Images
+  persistent_worker:
+    labels:
+      jail: freebsd
   matrix:
     freebsd_version: $freebsd_version_matrix
     arch: $arch_matrix
     flavor: $flavor_matrix
-  freebsd_instance:
-    image_family: freebsd-14-2
   env:
     FREEBSD_VERSION: $freebsd_version
     FREEBSD_ARCH: $arch
@@ -31,18 +32,13 @@ task:
 
 release_task:
   name: Release Images
-  container:
-    image: ubuntu:22.04
+  persistent_worker:
+    labels:
+      jail: freebsd
   env:
     GH_TOKEN: $GH_TOKEN
   install_script:
-    - apt-get update
-    - apt-get install -y curl wget
-    - curl -L https://github.com/cocogitto/cocogitto/releases/download/6.3.0/cocogitto-6.3.0-aarch64-unknown-linux-gnu.tar.gz | tar xz -C /usr/local/bin
-    - curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-    - apt-get update
-    - apt-get install -y gh
+    - pkg install -y gh cocogitto
   script: |
     for flavor in desktop poudriere; do
       if cog bump --auto ${flavor}-install/; then
