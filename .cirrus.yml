@@ -17,7 +17,7 @@ task:
     arch: $arch_matrix
     flavor: $flavor_matrix
   freebsd_instance:
-    image_family: freebsd-13-2
+    image_family: freebsd-14-2
   env:
     FREEBSD_VERSION: $freebsd_version
     FREEBSD_ARCH: $arch
