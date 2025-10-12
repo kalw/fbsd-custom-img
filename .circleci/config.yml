@@ -56,6 +56,11 @@ jobs:
             - "*.img"
 
   release:
+    parameters:
+      freebsd-version:
+        type: string
+      arch:
+        type: string
     executor: linux-release
     steps:
       - checkout
