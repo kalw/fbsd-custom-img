@@ -47,18 +47,18 @@ release_task:
     - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
     - apt-get update
     - apt-get install -y gh
-  script:
-    - for flavor in desktop poudriere; do
-        if cog bump --auto ${flavor}-install/; then
-          VERSION=$(cog get-version ${flavor}-install/)
-          echo "Version: ${VERSION}"
-          echo "moving artifacts"
-          mv artifacts/*-${flavor}.img artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
-          gh release create "${flavor}-v${VERSION}" \
-            --title "${flavor} v${VERSION}" \
-            --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
-            artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
-        fi
-      done
+  script: |
+    for flavor in desktop poudriere; do
+      if cog bump --auto ${flavor}-install/; then
+        VERSION=$(cog get-version ${flavor}-install/)
+        echo "Version: ${VERSION}"
+        echo "moving artifacts"
+        mv artifacts/*-${flavor}.img artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+        gh release create "${flavor}-v${VERSION}" \
+          --title "${flavor} v${VERSION}" \
+          --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
+          artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+      fi
+    done
   artifacts:
     path: artifacts/*.img
