@@ -86,9 +86,9 @@ workflows:
       - build-freebsd-images:
           matrix:
             parameters:
-              freebsd-version: [13.2, 14.0]
-              arch: [amd64, arm64]
-              flavor: [desktop, poudriere]
+              freebsd-version: ["13.2", "14.0"]
+              arch: ["amd64", "arm64"]
+              flavor: ["desktop", "poudriere"]
       - release:
           requires:
             - build-freebsd-images
