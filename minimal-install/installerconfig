@@ -1,0 +1,70 @@
+PARTITIONS=DEFAULT
+DISTRIBUTIONS="kernel.txz base.txz"
+
+#!/bin/sh
+gpart bootcode -b /boot/pmbr -p /boot/gptboot -i 1 ada0
+
+# Add here all desired configuration:
+
+env PACKAGESITE="pkg+http://pkg.FreeBSD.org/${ABI}/latest"
+
+mkdir -p /usr/local/etc/pkg/repos
+
+cat << EOF > /usr/local/etc/pkg/repos/latest.conf
+FreeBSD: { enabled: no }
+
+latest: {                                                                     
+  url: "pkg+http://pkg.FreeBSD.org/\${ABI}/latest",
+  mirror_type: "srv",                                                           
+  signature_type: "fingerprints",                                               
+  fingerprints: "/usr/share/keys/pkg",                                         
+  enabled: yes                                                                 
+}
+
+poudriere: {
+  
+}
+EOF
+
+cat << EOF > /etc/rc.conf
+hostname="freebsd-m4"
+keymap="fr.macbook.kbd"
+ifconfig_vtnet0="DHCP"
+sshd_enable="YES"
+moused_nondefault_enable="NO"
+# Set dumpdev to "AUTO" to enable crash dumps, "NO" to disable
+dumpdev="AUTO"
+EOF
+
+sysrc ifconfig_DEFAULT=DHCP
+sysrc sshd_enable=YES
+
+# Installing packages. The following two lines is borrowed
+# code from sysutils/firstboot-pkgs [1]
+
+env ASSUME_ALWAYS_YES=YES pkg bootstrap -f | cat
+env ASSUME_ALWAYS_YES=YES pkg upgrade -f | cat
+
+
+
+
+# poudriere specifics
+pkg install -y tmux terminfo-db git-lite doas
+
+cat << EOF > /usr/local/etc/doas.conf
+permit nopass keepenv :rdespres
+permit nopass keepenv root as root
+EOF
+
+
+
+poudriere ports -c
+poudriere jail -c -j "$(uname -mr|sed -e 's/[. ]/-/g')" -v "$(uname -r)" -a "$(uname -m)"
+
+echo DISABLE_LICENSES=yes >> /usr/local/etc/poudriere.d/make.conf
+
+cat << EOF > /usr/local/etc/poudriere.d/list
+www/chromium
+EOF
+
+poudriere bulk -b latest -j 14-2-R-arm64 -f /usr/local/etc/poudriere.d/list

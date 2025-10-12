@@ -1,0 +1,126 @@
+PARTITIONS=DEFAULT
+DISTRIBUTIONS="kernel.txz base.txz"
+
+#!/bin/sh
+#gpart bootcode -b /boot/pmbr -p /boot/gptboot -i 1 ada0
+
+# Add here all desired configuration:
+
+env PACKAGESITE="pkg+http://pkg.FreeBSD.org/${ABI}/latest"
+
+mkdir -p /usr/local/etc/pkg/repos
+
+cat << EOF > /usr/local/etc/pkg/repos/latest.conf
+FreeBSD: { enabled: no }
+
+latest: {                                                                     
+  url: "pkg+http://pkg.FreeBSD.org/\${ABI}/latest",
+  mirror_type: "srv",                                                           
+  signature_type: "fingerprints",                                               
+  fingerprints: "/usr/share/keys/pkg",                                         
+  enabled: yes                                                                 
+}
+EOF
+
+cat << EOF > /etc/rc.conf
+hostname="freebsd-m4"
+keymap="fr.macbook.kbd"
+ifconfig_vtnet0="DHCP"
+sshd_enable="YES"
+moused_nondefault_enable="NO"
+# Set dumpdev to "AUTO" to enable crash dumps, "NO" to disable
+dumpdev="AUTO"
+EOF
+
+# Installing packages. The following two lines is borrowed
+# code from sysutils/firstboot-pkgs [1]
+
+env ASSUME_ALWAYS_YES=YES pkg bootstrap -f | cat
+env ASSUME_ALWAYS_YES=YES pkg upgrade -f | cat
+
+SSL=/usr/local/etc/ssl
+mkdir -p   ${SSL}/keys ${SSL}/certs /usr/ports/distfiles /usr/local/poudriere /var/cache/ccache
+chmod 0600 ${SSL}/keys
+
+# poudriere specifics
+pkg install -y poudriere-dsh2dsh ccache tmux terminfo-db git-lite nginx doas
+
+
+
+cat << EOF > /usr/local/etc/doas.conf
+permit nopass keepenv :
+permit nopass keepenv root as root
+EOF
+
+cat << EOF > /usr/local/etc/poudriere.conf
+NO_ZFS=yes
+BASEFS=/usr/local/poudriere
+POUDRIERE_DATA=/usr/local/poudriere/data
+DISTFILES_CACHE=/usr/ports/distfiles
+CCACHE_DIR=/var/cache/ccache
+FREEBSD_HOST=ftp://ftp.freebsd.org
+RESOLV_CONF=/etc/resolv.conf
+USE_PORTLINT=no
+USE_TMPFS=no
+CHECK_CHANGED_OPTIONS=verbose
+CHECK_CHANGED_DEPS=yes
+USE_COLORS=no
+ALLOW_MAKE_JOBS=yes
+PRIORITY_BOOST="llvm* rust* gcc* chromium*"
+EOF
+
+cat << EOF > /usr/local/etc/nginx/nginx.conf
+events {
+  worker_connections 1024;
+}
+
+http {
+  include      mime.types;
+  default_type application/octet-stream;
+
+  server {
+    listen 80 default_server;
+    server_name _;
+    root /usr/local/share/poudriere/html;
+
+    location /data {
+      alias /usr/local/poudriere/data/logs/bulk;
+      autoindex on;
+    }
+
+    location /packages {
+      root /usr/local/poudriere/data;
+      autoindex on;
+    }
+  }
+}
+EOF
+sed -i '' -E 's|text/plain[\t\ ]*txt|text/plain txt log|g' /usr/local/etc/nginx/mime.types
+service nginx enable
+service nginx restart
+
+poudriere ports -c
+poudriere jail -c -j "$(uname -mr|sed -e 's/[. ]/-/g')" -v "$(uname -r)" -a "$(uname -m)"
+
+echo DISABLE_LICENSES=yes >> /usr/local/etc/poudriere.d/make.conf
+
+cat << EOF > /usr/local/etc/poudriere.d/list
+www/chromium
+EOF
+
+cat > /etc/motd << 'EOF'
+Welcome to Poudriere Build Environment
+====================================
+
+If you want to sign your package you'll need to handle the key generation and poudriere config accorfingly
+Something like this should do the trick:
+
+SSL=/usr/local/etc/ssl
+openssl genrsa -out ${SSL}/keys/poudriere.key 4096
+openssl rsa -in ${SSL}/keys/poudriere.key -pubout -out ${SSL}/certs/poudriere.cert
+
+echo 'PKG_REPO_SIGNING_KEY=/usr/local/etc/ssl/keys/poudriere.key' >> /usr/local/etc/poudriere.conf
+
+Then you can build your packages:
+poudriere bulk -b latest -j 14-2-R-arm64 -f /usr/local/etc/poudriere.d/list
+EOF
