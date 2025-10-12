@@ -20,7 +20,7 @@ executors:
       image: freebsd-13.2:current
 
 commands:
-  setup-releaseenvironment:
+  setup-release:
     steps:
       - run:
           name: Install required tools
@@ -41,7 +41,7 @@ jobs:
     executor: freebsd-builder
     steps:
       - checkout
-      - setup-environment
+      - setup-release
       - run:
           name: Build FreeBSD image
           command: |
