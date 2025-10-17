@@ -30,7 +30,7 @@ FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
 FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
 FREEBSD_FLAVOR=${FREEBSD_FLAVOR:-"poudriere"}
 
-cd ${FREEBSD_ISO_DL_PATH} && { fetch -O "${FREEBSD_ISO_URL}" ; cd -; }
+cd ${FREEBSD_ISO_DL_PATH} && { fetch -o ${FREEBSD_IMG_NAME} "${FREEBSD_ISO_URL}" ; cd -; }
 
 mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
 mount /dev/md0s2a /mnt
