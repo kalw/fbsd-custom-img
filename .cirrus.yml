@@ -12,9 +12,7 @@ flavor_matrix:
 
 task:
   name: Build FreeBSD Images
-  persistent_worker:
-    labels:
-      jail: freebsd
+  persistent_worker: {}
   matrix:
     freebsd_version: $freebsd_version_matrix
     arch: $arch_matrix
@@ -32,9 +30,7 @@ task:
 
 release_task:
   name: Release Images
-  persistent_worker:
-    labels:
-      jail: freebsd
+  persistent_worker: {}
   env:
     GH_TOKEN: $GH_TOKEN
   install_script:
