@@ -22,7 +22,7 @@ task:
     FREEBSD_ARCH: $arch
     FREEBSD_FLAVOR: $flavor
   script:
-    - ./make.iso.with.installer.sh
+    - doas ./make.iso.with.installer.sh
     - mkdir -p artifacts
     - mv *.img artifacts/FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
   artifacts:
@@ -34,7 +34,7 @@ release_task:
   env:
     GH_TOKEN: $GH_TOKEN
   install_script:
-    - pkg install -y gh cocogitto
+    - doas pkg install -y gh cocogitto
   script: |
     for flavor in desktop poudriere; do
       if cog bump --auto ${flavor}-install/; then
