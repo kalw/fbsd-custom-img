@@ -19,12 +19,12 @@ function cleanup {
 trap cleanup EXIT
 
 # start script
-FREEBSD_LATEST_RELEASE=$(curl -s https://download.freebsd.org/releases/amd64/ | awk '{print $3}' | grep RELEASE | tr -d '"' | tr -d '/' | cut -f2 -d'=' | sort | tail -1)
+FREEBSD_LATEST_RELEASE=$(curl -s https://download.freebsd.org/releases/amd64/ | awk '{print $3}' | grep RELEASE | tr -d '"' | tr -d '/' | cut -f2 -d'=' | sort | tail -1 |sed -e 's/-RELEASE//')
 FREEBSD_ARCH=${FREEBSD_VM_ARCH:-"arm64/aarch64"}
 FREEBSD_VM_ARCH=${FREEBSD_VM_ARCH:-"$(echo ${FREEBSD_ARCH} | awk '{print $2}')"}
 FREEBSD_ISO_DL_PATH=${FREEBSD_ISO_PATH:-"${WORK_DIR}"}
 FREEBSD_VERSION=${FREEBSD_VERSION:-"${FREEBSD_LATEST_RELEASE}"}
-FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-mini-memstick.img"
+FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-mini-memstick.img"
 FREEBSD_ISO_URL=${FREEBSD_ISO_URL:-"https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"}
 FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
 FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
