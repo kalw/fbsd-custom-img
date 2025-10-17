@@ -12,7 +12,9 @@ flavor_matrix:
 
 task:
   name: Build FreeBSD Images
-  persistent_worker: {}
+  persistent_worker:
+    labels:
+      jail: freebsd
   matrix:
     freebsd_version: $freebsd_version_matrix
     arch: $arch_matrix
@@ -21,20 +23,29 @@ task:
     FREEBSD_VERSION: $freebsd_version
     FREEBSD_ARCH: $arch
     FREEBSD_FLAVOR: $flavor
-  script:
-    - doas ./make.iso.with.installer.sh
-    - mkdir -p artifacts
-    - mv *.img artifacts/FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
+  script: |
+    if [ "$CIRRUS_PR" != "" ]; then
+      echo "Building for PR #$CIRRUS_PR (branch: $CIRRUS_BRANCH)";
+    else
+      echo "Building for branch $CIRRUS_BRANCH";
+    fi
+    id
+    bash -x ./make.iso.with.installer.sh
+    mkdir -p artifacts
+    mv *.img artifacts/FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
   artifacts:
     path: artifacts/*.img
 
 release_task:
+  only_if: $CIRRUS_BRANCH == 'main'
   name: Release Images
-  persistent_worker: {}
+  persistent_worker:
+    labels:
+      jail: freebsd
   env:
     GH_TOKEN: $GH_TOKEN
   install_script:
-    - doas pkg install -y gh cocogitto
+    - pkg install -y gh cocogitto
   script: |
     for flavor in desktop poudriere; do
       if cog bump --auto ${flavor}-install/; then
