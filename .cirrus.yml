@@ -1,5 +1,6 @@
 # Cirrus CI configuration for FreeBSD custom image builder
-
+freebsd_instance:
+  image_family: freebsd-14-2
 freebsd_version_matrix:
   - "13.2"
   - "14.0"
@@ -12,7 +13,6 @@ flavor_matrix:
 
 task:
   name: Build FreeBSD Images
-  persistent_worker: {}
   matrix:
     freebsd_version: $freebsd_version_matrix
     arch: $arch_matrix
@@ -21,6 +21,8 @@ task:
     FREEBSD_VERSION: $freebsd_version
     FREEBSD_ARCH: $arch
     FREEBSD_FLAVOR: $flavor
+  install_script:
+    - pkg install -y curl
   script: |
     if [ "$CIRRUS_PR" != "" ]; then
       echo "Building for PR #$CIRRUS_PR (branch: $CIRRUS_BRANCH)";
@@ -37,7 +39,6 @@ task:
 release_task:
   only_if: $CIRRUS_BRANCH == 'main'
   name: Release Images
-  persistent_worker: {}
   env:
     GH_TOKEN: $GH_TOKEN
   install_script:
