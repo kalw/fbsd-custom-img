@@ -49,11 +49,11 @@ release_task:
         VERSION=$(cog get-version ${flavor}-install/)
         echo "Version: ${VERSION}"
         echo "moving artifacts"
-        mv artifacts/*-${flavor}.img artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+        mv artifacts/*-${flavor}.img artifacts/
         gh release create "${flavor}-v${VERSION}" \
           --title "${flavor} v${VERSION}" \
           --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
-          artifacts/FreeBSD-${FREEBSD_VERSION}-${FREEBSD_ARCH}-${flavor}-${VERSION}.img
+          artifacts/*-${flavor}.img
       fi
     done
   artifacts:
