@@ -34,11 +34,13 @@ cd ${FREEBSD_ISO_DL_PATH} && { fetch -o ${FREEBSD_IMG_NAME} "${FREEBSD_ISO_URL}"
 
 ls /dev/md*
 mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
-mount /dev/md0s2a /mnt
+ls /dev/md*
+mount /dev/md0p2 /mnt
 cp ./${FREEBSD_FLAVOR}-install/installerconfig /mnt/etc/installerconfig
 umount /mnt
 mdconfig -du 0
-mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} .
+mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
+
 
 
 # cat << EOF > /tmp/create.utm.vm.applescript
