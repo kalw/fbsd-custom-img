@@ -22,7 +22,7 @@ task:
     FREEBSD_ARCH: $arch
     FREEBSD_FLAVOR: $flavor
   install_script:
-    - pkg install -y curl
+    - pkg install -y curl bash
   script: |
     if [ "$CIRRUS_PR" != "" ]; then
       echo "Building for PR #$CIRRUS_PR (branch: $CIRRUS_BRANCH)";
