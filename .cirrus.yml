@@ -32,7 +32,7 @@ task:
     id
     bash -x ./make.iso.with.installer.sh
     mkdir -p artifacts
-    mv *.img artifacts/FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
+    mv *.img artifacts/
   artifacts:
     path: artifacts/*.img
 
