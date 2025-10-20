@@ -39,7 +39,7 @@ mount /dev/md0p2 /mnt
 cp ./${FREEBSD_FLAVOR}-install/installerconfig /mnt/etc/installerconfig
 umount /mnt
 mdconfig -du 0
-mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} FreeBSD-${FREEBSD_VERSION}-RELEASE-${FREEBSD_ARCH}-${FREEBSD_FLAVOR}.img
+mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-${FREEBSD_FLAVOR}.img
 
 
 
