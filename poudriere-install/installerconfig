@@ -48,7 +48,7 @@ pkg install -y poudriere-dsh2dsh ccache tmux terminfo-db git-lite nginx doas
 
 
 cat << EOF > /usr/local/etc/doas.conf
-permit nopass keepenv :
+permit nopass keepenv :wheel
 permit nopass keepenv root as root
 EOF
 
@@ -100,7 +100,19 @@ service nginx enable
 service nginx restart
 
 poudriere ports -c
-poudriere jail -c -j "$(uname -mr|sed -e 's/[. ]/-/g')" -v "$(uname -r)" -a "$(uname -m)"
+poudriere jail -c -j "$(uname -mr|sed -e 's/[. ]/-/g')" -v "$(uname -r)"
+
+# use poudriere as package repository for pkg
+cat << EOF > /usr/local/etc/pkg/repos/poudriere.conf
+poudriere: {
+url: "file:///usr/local/poudriere/data/packages/$(uname -mr|sed -e 's/[. ]/-/g')-default",
+mirror_type: "srv",
+signature_type: NONE,
+enabled: yes,
+priority: 1
+}
+EOF
+
 
 echo DISABLE_LICENSES=yes >> /usr/local/etc/poudriere.d/make.conf
 
@@ -123,4 +135,18 @@ echo 'PKG_REPO_SIGNING_KEY=/usr/local/etc/ssl/keys/poudriere.key' >> /usr/local/
 
 Then you can build your packages:
 poudriere bulk -b latest -j 14-2-R-arm64 -f /usr/local/etc/poudriere.d/list
+
+for bsd pkg to work you'll need to add poudriere as package repository:
+# /usr/local/etc/pkg/repos/poudriere.conf
+poudriere: {
+url: "http://server_domain_or_IP/packages/$(uname -mr|sed -e 's/[. ]/-/g')-default",
+mirror_type: "http",
+signature_type: NONE,
+enabled: yes,
+priority: 1
+}
+
+
 EOF
+
+pkg install -y python311 sqlite3 py311-pip py311-virtualenv

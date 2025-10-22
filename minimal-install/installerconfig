@@ -51,8 +51,17 @@ env ASSUME_ALWAYS_YES=YES pkg upgrade -f | cat
 # poudriere specifics
 pkg install -y tmux terminfo-db git-lite doas
 
+echo poudriere::::01-01-1970::poudriere::tcsh:none | adduser -w none -G wheel -f -
+pw usermod poudriere -p -
+
+mkdir /home/poudriere/.ssh
+touch /home/poudriere/.ssh/authorized_keys
+chown poudriere:poudriere /home/poudriere/.ssh/authorized_keys
+chown poudriere:poudriere /home/poudriere/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICT9XYR8VmClRXrRdTR3h6rKdgw9cKSZXnb12r/J3cw6" > /home/poudriere/.ssh/authorized_keys
+
 cat << EOF > /usr/local/etc/doas.conf
-permit nopass keepenv :rdespres
+permit nopass keepenv :poudriere
 permit nopass keepenv root as root
 EOF
 
