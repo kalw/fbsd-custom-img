@@ -1,3 +1,5 @@
+monorepo_version_separator = "/"
+tag_prefix = "v"
 [packages]
 desktop-install = { path = "desktop-install" } 
 minimal-install = { path = "minimal-install" } 
