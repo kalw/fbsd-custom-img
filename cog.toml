@@ -1,5 +1,7 @@
 monorepo_version_separator = "/"
 tag_prefix = "v"
+ignore_merge_commits = true
+ignore_fixup_commits = true
 [packages]
 desktop-install = { path = "desktop-install" } 
 minimal-install = { path = "minimal-install" } 
