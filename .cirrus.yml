@@ -52,8 +52,6 @@ release_task:
       if cog bump --auto --package ${flavor}-install; then
         VERSION=$(cog get-version --package ${flavor}-install)
         echo "Version: ${VERSION}"
-        echo "moving artifacts"
-        mv artifacts/*-${flavor}.img artifacts/
         gh release create "${flavor}-v${VERSION}" \
           --title "${flavor} v${VERSION}" \
           --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
