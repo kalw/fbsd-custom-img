@@ -47,8 +47,8 @@ release_task:
     - pkg install -y gh cocogitto
   script: |
     for flavor in desktop poudriere; do
-      if cog bump --auto ${flavor}-install/; then
-        VERSION=$(cog get-version ${flavor}-install/)
+      if cog bump --auto --package ${flavor}-install; then
+        VERSION=$(cog get-version --package ${flavor}-install)
         echo "Version: ${VERSION}"
         echo "moving artifacts"
         mv artifacts/*-${flavor}.img artifacts/
