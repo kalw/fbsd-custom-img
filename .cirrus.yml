@@ -46,6 +46,8 @@ release_task:
   install_script:
     - pkg install -y gh cocogitto
   script: |
+    git config --global user.name "release-bot"
+    git config --global user.email "release-bot@ci.net"
     for flavor in desktop poudriere; do
       if cog bump --auto --package ${flavor}-install; then
         VERSION=$(cog get-version --package ${flavor}-install)
