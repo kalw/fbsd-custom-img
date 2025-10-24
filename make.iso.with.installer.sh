@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/env sh
 
 # the directory of the script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -17,6 +17,8 @@ function cleanup {
 }
 # register the cleanup function to be called on the EXIT signal
 trap cleanup EXIT
+
+pkg install -y curl
 
 # start script
 FREEBSD_LATEST_RELEASE=$(curl -s https://download.freebsd.org/releases/amd64/ | awk '{print $3}' | grep RELEASE | tr -d '"' | tr -d '/' | cut -f2 -d'=' | sort | tail -1 |sed -e 's/-RELEASE//')
@@ -39,9 +41,25 @@ mount /dev/md0p2 /mnt
 cp ./${FREEBSD_FLAVOR}-install/installerconfig /mnt/etc/installerconfig
 umount /mnt
 mdconfig -du 0
-mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-${FREEBSD_FLAVOR}.img
 
-
+mkdir -p artifacts
+mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+if [ "$CIRRUS_BRANCH" == "main" ]; then
+  echo "releasing"
+  pkg install -y gh cocogitto
+  git config --global user.name "release-bot"
+  git config --global user.email "release-bot@ci.net"
+  for flavor in desktop poudriere; do
+    if cog bump --auto --package ${flavor}-install; then
+      VERSION=$(cog get-version --package ${flavor}-install)
+      echo "Version: ${VERSION}"
+      gh release create "${flavor}-v${VERSION}" \
+        --title "${flavor} v${VERSION}" \
+        --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
+        artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+    fi
+  done
+fi
 
 # cat << EOF > /tmp/create.utm.vm.applescript
 # tell application "UTM"

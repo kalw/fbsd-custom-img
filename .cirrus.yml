@@ -21,42 +21,8 @@ task:
     FREEBSD_VERSION: $freebsd_version
     FREEBSD_ARCH: $arch
     FREEBSD_FLAVOR: $flavor
-  install_script:
-    - pkg install -y curl bash
-  script: |
-    if [ "$CIRRUS_PR" != "" ]; then
-      echo "Building for PR #$CIRRUS_PR (branch: $CIRRUS_BRANCH)";
-    else
-      echo "Building for branch $CIRRUS_BRANCH";
-    fi
-    id
-    bash -x ./make.iso.with.installer.sh
-    mkdir -p artifacts
-    mv *.img artifacts/
-  artifacts:
-    path: artifacts/*.img
-
-release_task:
-  only_if: $CIRRUS_BRANCH == 'main'
-  depends_on:
-    - Build FreeBSD Images
-  name: Release Images
-  env:
     GH_TOKEN: $GH_TOKEN
-  install_script:
-    - pkg install -y gh cocogitto
   script: |
-    git config --global user.name "release-bot"
-    git config --global user.email "release-bot@ci.net"
-    for flavor in desktop poudriere; do
-      if cog bump --auto --package ${flavor}-install; then
-        VERSION=$(cog get-version --package ${flavor}-install)
-        echo "Version: ${VERSION}"
-        gh release create "${flavor}-v${VERSION}" \
-          --title "${flavor} v${VERSION}" \
-          --notes "$(cog changelog --at ${flavor}-install/v${VERSION})" \
-          artifacts/*-${flavor}.img
-      fi
-    done
+    sh -x ./make.iso.with.installer.sh
   artifacts:
     path: artifacts/*.img
