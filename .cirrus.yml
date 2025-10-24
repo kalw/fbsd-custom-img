@@ -1,15 +1,6 @@
 # Cirrus CI configuration for FreeBSD custom image builder
 freebsd_instance:
   image_family: freebsd-14-2
-freebsd_version_matrix:
-  - "13.2"
-  - "14.0"
-arch_matrix:
-  - "amd64/amd64"
-  - "arm64/aarch64"
-flavor_matrix:
-  - "desktop"
-  - "poudriere"
 
 task:
   name: Build FreeBSD Images
@@ -18,9 +9,12 @@ task:
     arch: $arch_matrix
     flavor: $flavor_matrix
   env:
-    FREEBSD_VERSION: $freebsd_version
-    FREEBSD_ARCH: $arch
-    FREEBSD_FLAVOR: $flavor
+    matrix:
+      FREEBSD_VERSION: "13.5"
+      FREEBSD_VERSION: "14.3"
+    matrix:
+      FREEBSD_ARCH: "amd64/amd64"
+      FREEBSD_ARCH: "arm64/aarch64"
     GH_TOKEN: $GH_TOKEN
   script: |
     sh -x ./make.iso.with.installer.sh
