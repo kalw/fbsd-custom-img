@@ -15,7 +15,7 @@ task:
     matrix:
       FREEBSD_ARCH: "amd64/amd64"
       FREEBSD_ARCH: "arm64/aarch64"
-    GH_TOKEN: $GH_TOKEN
+    GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
   script: |
     sh -x ./make.iso.with.installer.sh
   artifacts:
