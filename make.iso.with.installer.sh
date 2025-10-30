@@ -45,21 +45,20 @@ mdconfig -du 0
 
 mkdir -p artifacts
 mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+xz -z -9 artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
 if [ "$CIRRUS_BRANCH" = "main" ]; then
   echo "releasing"
   pkg install -y gh cocogitto
   git config --global user.name "release-bot"
   git config --global user.email "release-bot@ci.net"
   if cog bump --auto --package ${FREEBSD_FLAVOR}-install --skip-ci; then
-    git push origin
-    git push origin --tags
     VERSION=$(cog get-version --package ${FREEBSD_FLAVOR}-install)
     echo "Version: ${VERSION}"
     echo "Package: ${VERSION}"
-    gh release create "${FREEBSD_FLAVOR}-v${VERSION}" \
+    gh release create "${FREEBSD_FLAVOR}-install/v${VERSION}" \
       --title "${FREEBSD_FLAVOR} v${VERSION}" \
-      --notes "$(cog changelog --at ${FREEBSD_FLAVOR}-install/v${VERSION})" \
-      artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+      --notes "$(cat ${FREEBSD_FLAVOR}-install/CHANGELOG.md)" \
+      artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}.xz
   fi
 fi
 
