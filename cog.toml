@@ -4,11 +4,11 @@ ignore_merge_commits = true
 ignore_fixup_commits = true
 
 pre_package_bump_hooks = [
-    "echo $PWD ; export FREEBSD_FLAVORS={{package}} ; ../make.iso.with.installer"
+    "export FREEBSD_FLAVORS={{package}} ;  ./../make.iso.with.installer"
 ]
 
 post_package_bump_hooks = [
-    "gh release create \"{{version}}\" --title \"{{version}}\" -F {{package}}/CHANGELOG.md artifacts/{{package}}-*.xz"
+    "gh release create \"{{version}}\" --title \"{{version}}\" -F ./CHANGELOG.md ./../artifacts/{{package}}-*.xz"
 ]
 
 post_bump_hooks = [
