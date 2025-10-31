@@ -2,7 +2,24 @@ monorepo_version_separator = "/"
 tag_prefix = "v"
 ignore_merge_commits = true
 ignore_fixup_commits = true
+
+pre_package_bump_hooks = [
+    "FREEBSD_FLAVORS={{package}} ./make.iso.with.installer"
+]
+
+post_package_bump_hooks = [
+    "gh release create \"{{version}}\" --title \"{{version}}\" -F {{package}}/CHANGELOG.md artifacts/{{package}}-*.xz"
+]
+
+post_bump_hooks = [
+    "git config --global user.name \"release-bot\"",
+    "git config --global user.email \"release-bot@ci.net\"",
+    "git push \"https://$GITHUB_TOKEN@github.com/kalw/fbsd-custom-img.git\" ",
+    "git push \"https://$GITHUB_TOKEN@github.com/kalw/fbsd-custom-img.git\" --tags",
+]
+
+
 [packages]
-desktop-install = { path = "desktop-install" } 
-minimal-install = { path = "minimal-install" } 
-poudriere-install = { path = "poudriere-install" }
+desktop   = { path = "desktop"   } 
+minimal   = { path = "minimal"   } 
+poudriere = { path = "poudriere" }

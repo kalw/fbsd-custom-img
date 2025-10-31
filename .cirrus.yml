@@ -2,21 +2,21 @@
 freebsd_instance:
   image_family: freebsd-14-2
 
-task:
-  name: Build FreeBSD Images
-  matrix:
-    freebsd_version: $freebsd_version_matrix
-    arch: $arch_matrix
-    flavor: $flavor_matrix
+non_release_build:
+  name: Non Release Build
   env:
-    matrix:
-      FREEBSD_VERSION: "13.5"
-      FREEBSD_VERSION: "14.3"
-    matrix:
-      FREEBSD_ARCH: "amd64/amd64"
-      FREEBSD_ARCH: "arm64/aarch64"
-    GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
+    FREEBSD_VERSIONS: "13.5,14.3"
+    FREEBSD_ARCHS: "amd64/amd64,arm64/aarch64"
   script: |
     sh -x ./make.iso.with.installer.sh
   artifacts:
     path: artifacts/*.img
+
+release_build:
+  name: Release Build
+  env:
+    GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
+  only_if: $CIRRUS_BRANCH == 'main'
+  script: |
+    pkg install -y gh cocogitto git-lite
+    cog bump --auto --skip-ci

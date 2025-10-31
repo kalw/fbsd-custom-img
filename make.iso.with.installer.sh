@@ -21,46 +21,61 @@ trap 'cleanup' 0
 
 pkg install -y curl
 
-# start script
-FREEBSD_LATEST_RELEASE=$(curl -s https://download.freebsd.org/releases/amd64/ | awk '{print $3}' | grep RELEASE | tr -d '"' | tr -d '/' | cut -f2 -d'=' | sort | tail -1 |sed -e 's/-RELEASE//')
-FREEBSD_ARCH=${FREEBSD_VM_ARCH:-"arm64/aarch64"}
-FREEBSD_VM_ARCH=${FREEBSD_VM_ARCH:-"$(echo ${FREEBSD_ARCH} | awk '{print $2}')"}
+get_all_latest_releases_list() {
+  # Fetch all RELEASE directories from FreeBSD amd64 releases page
+  curl -s https://download.freebsd.org/releases/amd64/ \
+  | awk -F'"' '/href/ && /RELEASE\// {print $4}' \
+  | sed -E 's@([0-9.]+)-RELEASE/@\1@' \
+  | sort -u \
+  | awk '{printf $0","}' \
+  | sed -e 's/,$//'
+}
+
+get_all_flavors_list() {
+  # Fetch all config directories
+  find . -type d -depth 1 \
+  | sed -e 's/\.\///' -e '/.git/d' \
+  | awk '{printf $0","}' |sed -e 's/,$//'
+}
+
+# buildin img 
+FREEBSD_LATEST_RELEASES=$(get_all_latest_releases_list)
+FREEBSD_ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
 FREEBSD_ISO_DL_PATH=${FREEBSD_ISO_PATH:-"${WORK_DIR}"}
-FREEBSD_VERSION=${FREEBSD_VERSION:-"${FREEBSD_LATEST_RELEASE}"}
-FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-mini-memstick.img"
-FREEBSD_ISO_URL=${FREEBSD_ISO_URL:-"https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"}
-FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
-FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
-FREEBSD_FLAVOR=${FREEBSD_FLAVOR:-"poudriere"}
+FREEBSD_VERSIONS=${FREEBSD_VERSIONS:-"${FREEBSD_LATEST_RELEASES}"}
+FREEBSD_FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
 
-cd ${FREEBSD_ISO_DL_PATH} && { fetch -o ${FREEBSD_IMG_NAME} "${FREEBSD_ISO_URL}" ; cd -; }
+for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
+  echo "Preparing FreeBSD architecture: ${FREEBSD_ARCH}"
+  # var for future utm/qemu work
+  # FREEBSD_VM_ARCH=${FREEBSD_VM_ARCH:-"$(echo ${FREEBSD_ARCH} | awk '{print $2}')"}
+  # FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
+  # FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
+  for FREEBSD_VERSION in $(echo ${FREEBSD_VERSIONS} | tr ',' ' '); do
+    echo "Preparing FreeBSD version: ${FREEBSD_VERSION}"
+    FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-mini-memstick.img"
+    FREEBSD_ISO_URL="https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"
+    fetch -o ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} "${FREEBSD_ISO_URL}" 
+    
+    for FREEBSD_FLAVOR in ${FREEBSD_FLAVORS | tr ',' ' '}; do
+      mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
+      mount /dev/md0p2 /mnt
+      rm /mnt/etc/installerconfig || true
+      cp ./${FREEBSD_FLAVOR}/installerconfig /mnt/etc/installerconfig
+      umount /mnt
+      mdconfig -du 0
 
-ls /dev/md*
-mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
-ls /dev/md*
-mount /dev/md0p2 /mnt
-cp ./${FREEBSD_FLAVOR}-install/installerconfig /mnt/etc/installerconfig
-umount /mnt
-mdconfig -du 0
+      mkdir -p artifacts
+      cp ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+      xz -z -9 artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
+    done
 
-mkdir -p artifacts
-mv ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
-xz -z -9 artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
-if [ "$CIRRUS_BRANCH" = "main" ]; then
-  echo "releasing"
-  pkg install -y gh cocogitto
-  git config --global user.name "release-bot"
-  git config --global user.email "release-bot@ci.net"
-  if cog bump --auto --package ${FREEBSD_FLAVOR}-install --skip-ci; then
-    VERSION=$(cog get-version --package ${FREEBSD_FLAVOR}-install)
-    echo "Version: ${VERSION}"
-    echo "Package: ${VERSION}"
-    gh release create "${FREEBSD_FLAVOR}-install/v${VERSION}" \
-      --title "${FREEBSD_FLAVOR} v${VERSION}" \
-      --notes "$(cat ${FREEBSD_FLAVOR}-install/CHANGELOG.md)" \
-      artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}.xz
-  fi
-fi
+  done
+done
+
+
+
+
 
 # cat << EOF > /tmp/create.utm.vm.applescript
 # tell application "UTM"
