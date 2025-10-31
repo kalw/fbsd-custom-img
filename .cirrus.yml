@@ -4,6 +4,7 @@ freebsd_instance:
 
 non_release_build:
   name: Non Release Build
+  only_if: $CIRRUS_BRANCH != 'main'
   env:
     FREEBSD_VERSIONS: "13.5,14.3"
     FREEBSD_ARCHS: "amd64/amd64,arm64/aarch64"
@@ -14,9 +15,11 @@ non_release_build:
 
 release_build:
   name: Release Build
+  only_if: $CIRRUS_BRANCH == 'main'
   env:
     GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
-  only_if: $CIRRUS_BRANCH == 'main'
   script: |
-    pkg install -y gh cocogitto git-lite
+    pkg install -y curl gh cocogitto git-lite
     cog bump --auto --skip-ci
+  artifacts:
+    path: artifacts/*.img
