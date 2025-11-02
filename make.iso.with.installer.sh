@@ -1,5 +1,7 @@
 #!/bin/env sh
 
+set -euxo pipefail
+
 # the directory of the script
 DIR="$(cd "$(dirname "$0")" && pwd)"
 # the temp directory used, within $DIR
@@ -64,14 +66,12 @@ for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
       cp ./${FREEBSD_FLAVOR}/installerconfig /mnt/etc/installerconfig
       umount /mnt
       mdconfig -du 0
-
-      mkdir -p artifacts
+      mkdir -p artifacts 
       cp ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME} artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
-      xz -z -9 artifacts/${FREEBSD_FLAVOR}-${FREEBSD_IMG_NAME}
     done
-
   done
 done
+xz artifacts/*.img
 exit 0
 
 
