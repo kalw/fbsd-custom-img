@@ -10,7 +10,7 @@ pre_package_bump_hooks = [
 ]
 
 post_package_bump_hooks = [
-    "gh release create \"{{version}}\" --title \"{{version}}\" -F ./CHANGELOG.md ./../artifacts/{{package}}-*.xz"
+    "gh release create \"{{package}}-{{version}}\" --title \"{{package}}-{{version}}\" -F ./CHANGELOG.md ./../artifacts/{{package}}-*.xz"
 ]
 
 post_bump_hooks = [
