@@ -53,7 +53,7 @@ for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
   # FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
   for FREEBSD_VERSION in $(echo ${FREEBSD_VERSIONS} | tr ',' ' '); do
     echo "Preparing FreeBSD version: ${FREEBSD_VERSION}"
-    FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/\//-/')-mini-memstick.img"
+    FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/amd64\/amd64/amd64/' -e 's/\//-/')-mini-memstick.img"
     FREEBSD_ISO_URL="https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"
     curl -o ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz "${FREEBSD_ISO_URL}.xz" 
     xz -d ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz
@@ -72,6 +72,7 @@ for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
 
   done
 done
+exit 0
 
 
 
