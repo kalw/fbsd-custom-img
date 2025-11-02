@@ -4,7 +4,7 @@ ignore_merge_commits = true
 ignore_fixup_commits = true
 
 pre_package_bump_hooks = [
-    "export FREEBSD_FLAVORS={{package}} ; sh -x ./../make.iso.with.installer.sh"
+    "export FREEBSD_FLAVORS={{package}} ; cd .. ; sh -x ./make.iso.with.installer.sh"
 ]
 
 post_package_bump_hooks = [
