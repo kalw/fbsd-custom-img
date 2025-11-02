@@ -61,7 +61,8 @@ for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
     xz -d ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz
     for FREEBSD_FLAVOR in $(echo $FREEBSD_FLAVORS | tr ',' ' '); do
       mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
-      mount /dev/md0p2 /mnt
+      mount /dev/md0p2  /mnt || true
+      mount /dev/md0s2a /mnt || true
       rm /mnt/etc/installerconfig || true
       cp ./${FREEBSD_FLAVOR}/installerconfig /mnt/etc/installerconfig
       umount /mnt
