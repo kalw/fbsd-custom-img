@@ -12,16 +12,16 @@ This project automates building custom FreeBSD images with pre-configured flavor
 ## How to Generate a Custom Image
 
 1. **Choose your flavor:**  
-   Place your custom `installerconfig` in one of the flavor folders (`desktop-install/`, `poudriere-install/`, etc.).
+   Place your custom `installerconfig` in one of the flavor folders (`desktop`, `poudriere`, etc.)or create new one.
 
-2. **Run the build script:**  
+2. **Run all flavors, versions and archs:**  
    ```sh
    ./make.iso.with.installer.sh
    ```
    You can set environment variables to customize:
-   - `FREEBSD_VERSION` (e.g., `14.0`)
-   - `FREEBSD_ARCH` (e.g., `amd64/amd64` or `arm64/aarch64`)
-   - `FREEBSD_FLAVOR` (e.g., `desktop`, `poudriere`)
+   - `FREEBSD_VERSION` (e.g., `14.0`) This is a comma separated list
+   - `FREEBSD_ARCH` (e.g., `amd64/amd64` or `amd64/amd64,arm64/aarch64`) This is a comma separated list
+   - `FREEBSD_FLAVOR` (e.g., `desktop`, `desktop,poudriere`)  This is a comma separated list
 
    Example:
    ```sh
@@ -29,12 +29,12 @@ This project automates building custom FreeBSD images with pre-configured flavor
    ```
 
 3. **Find your image:**  
-   The resulting `.img` file will be in the current directory.
+   The resulting `.img.xz` files will be in the `artifact/` directory.
 
 ## Advanced: CI/CD
 
-- The `.circleci/config.yml` automates builds for multiple versions, architectures, and flavors.
-- Artifacts are versioned and released via GitHub.
+- The `.cirrus.yml` automates builds for multiple versions, architectures, and flavors.
+- Artifacts are versioned and released in GitHub helped by `cog`.
 
 ---
 
