@@ -1,7 +1,7 @@
 #!/bin/env sh
 
 # the directory of the script
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$(cd "$(dirname "$0")" && pwd)"
 # the temp directory used, within $DIR
 # omit the -p parameter to create a temporal directory in the default location
 WORK_DIR=`mktemp -d -p "$DIR"`
@@ -41,7 +41,7 @@ get_all_flavors_list() {
 # buildin img 
 FREEBSD_LATEST_RELEASES=$(get_all_latest_releases_list)
 FREEBSD_ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
-FREEBSD_ISO_DL_PATH=${FREEBSD_ISO_PATH:-"${WORK_DIR}"}
+FREEBSD_ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
 FREEBSD_VERSIONS=${FREEBSD_VERSIONS:-"${FREEBSD_LATEST_RELEASES}"}
 FREEBSD_FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
 
@@ -80,7 +80,7 @@ done
 # cat << EOF > /tmp/create.utm.vm.applescript
 # tell application "UTM"
 #     --- specify a boot ISO
-#     set iso to POSIX file "${FREEBSD_ISO_PATH}"
+#     set iso to POSIX file "${FREEBSD_ISO_DL_PATH}"
 #     --- create a new QEMU VM for ${FREEBSD_VM_ARCH} with a single 64GiB drive
 #     set vm to make new virtual machine with properties {backend:qemu, configuration:{name:"QEMU ${FREEBSD_VM_ARCH}", architecture:"${FREEBSD_VM_ARCH}", drives:{{removable:true, source:iso}, {guest size:${FREEBSD_HDD_SIZE}}}, memory: ${FREEBSD_RAM_SIZE} , network interfaces:{{mode:bridged}} }}
 # end tell
