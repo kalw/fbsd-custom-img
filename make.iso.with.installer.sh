@@ -57,7 +57,7 @@ for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
     FREEBSD_ISO_URL="https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"
     curl -o ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz "${FREEBSD_ISO_URL}.xz" 
     xz -d ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz
-    for FREEBSD_FLAVOR in ${FREEBSD_FLAVORS | tr ',' ' '}; do
+    for FREEBSD_FLAVOR in $(echo $FREEBSD_FLAVORS | tr ',' ' '); do
       mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
       mount /dev/md0p2 /mnt
       rm /mnt/etc/installerconfig || true
