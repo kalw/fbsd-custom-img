@@ -3,24 +3,23 @@ freebsd_instance:
   image_family: freebsd-14-2
 
 task:
-  non_release_build:
-    name: Non Release Build
-    only_if: $CIRRUS_BRANCH != 'main'
-    env:
-      FREEBSD_VERSIONS: "13.5,14.3"
-      FREEBSD_ARCHS: "amd64/amd64,arm64/aarch64"
-    script: |
-      sh -x ./make.iso.with.installer.sh
-    artifacts:
-      path: artifacts/*.img
+  name: Non Release Build
+  only_if: $CIRRUS_BRANCH != 'main'
+  env:
+    FREEBSD_VERSIONS: "13.5,14.3"
+    FREEBSD_ARCHS: "amd64/amd64,arm64/aarch64"
+  script: |
+    sh -x ./make.iso.with.installer.sh
+  artifacts:
+    path: artifacts/*.img
 
-  release_build:
-    name: Release Build
-    only_if: $CIRRUS_BRANCH == 'main'
-    env:
-      GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
-    script: |
-      pkg install -y curl gh cocogitto git-lite
-      cog bump --auto --skip-ci
-    artifacts:
-      path: artifacts/*.img
+task:
+  name: Release Build
+  only_if: $CIRRUS_BRANCH == 'main'
+  env:
+    GH_TOKEN: ENCRYPTED[c257cc40ba7a9d71735934dc899d11ecd4b69df54cf34400cdbe710f73b6e1a9854fd174aab0b8b83de732086674a353]
+  script: |
+    pkg install -y curl gh cocogitto git-lite
+    cog bump --auto --skip-ci
+  artifacts:
+    path: artifacts/*.img
