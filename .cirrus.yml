@@ -1,6 +1,6 @@
 # Cirrus CI configuration for FreeBSD custom image builder
 freebsd_instance:
-  image_family: freebsd-14-2
+  image_family: freebsd-15-0-amd64-ufs
 
 task:
   name: Non Release Build
