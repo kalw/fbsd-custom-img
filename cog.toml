@@ -6,7 +6,7 @@ ignore_fixup_commits = true
 pre_package_bump_hooks = [
     "git config --global user.name \"release-bot\"",
     "git config --global user.email \"release-bot@ci.net\"",
-    "export FREEBSD_FLAVORS={{package}} ; cd .. ; sh -x ./make.iso.with.installer.sh"
+    "echo export FREEBSD_FLAVORS={{package}} ; cd .. ; sh -x ./make.iso.with.installer.sh"
 ]
 
 post_package_bump_hooks = [
@@ -16,8 +16,8 @@ post_package_bump_hooks = [
 post_bump_hooks = [
     "git config --global user.name \"release-bot\"",
     "git config --global user.email \"release-bot@ci.net\"",
-    "git push \"https://$GITHUB_TOKEN@github.com/kalw/fbsd-custom-img.git\" ",
-    "git push \"https://$GITHUB_TOKEN@github.com/kalw/fbsd-custom-img.git\" --tags",
+    "git push \"https://${GITHUB_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git\" ",
+    "git push \"https://${GITHUB_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git\" --tags",
 ]
 
 
