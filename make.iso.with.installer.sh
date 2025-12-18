@@ -48,7 +48,7 @@ VERSIONS=${FREEBSD_VERSIONS:-"${LATEST_RELEASES}"}
 FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
 
 for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
-  echo "Preparing FreeBSD architecture: ${ARCH}"
+  echo "Preparing FreeBSD architecture: ${FREEBSD_ARCH}"
   # var for future utm/qemu work
   # FREEBSD_VM_ARCH=${FREEBSD_VM_ARCH:-"$(echo ${FREEBSD_ARCH} | awk '{print $2}')"}
   # FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
