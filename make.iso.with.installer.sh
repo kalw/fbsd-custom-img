@@ -44,7 +44,7 @@ get_all_flavors_list() {
 LATEST_RELEASES=$(get_all_latest_releases_list)
 ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
 ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
-VERSIONS=${FREEBSD_VERSIONS:-"${FREEBSD_LATEST_RELEASES}"}
+VERSIONS=${FREEBSD_VERSIONS:-"${LATEST_RELEASES}"}
 FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
 
 for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
