@@ -57,7 +57,7 @@ for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
     echo "Preparing FreeBSD version: ${FREEBSD_VERSION}"
     FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/amd64\/amd64/amd64/' -e 's/\//-/')-mini-memstick.img"
     FREEBSD_ISO_URL="https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"
-    curl -o ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz "${FREEBSD_ISO_URL}.xz" 
+    curl -o ${ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz "${FREEBSD_ISO_URL}.xz" 
     xz -d ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}.xz
     for FREEBSD_FLAVOR in $(echo $FREEBSD_FLAVORS | tr ',' ' '); do
       mdconfig -u 0 -f ${FREEBSD_ISO_DL_PATH}/${FREEBSD_IMG_NAME}
