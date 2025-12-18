@@ -42,10 +42,11 @@ get_all_flavors_list() {
 
 # buildin img 
 LATEST_RELEASES=$(get_all_latest_releases_list)
+ALL_FLAVORS=$(get_all_latest_releases_list)
 ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
 ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
 VERSIONS=${FREEBSD_VERSIONS:-"${LATEST_RELEASES}"}
-FLAVORS=${FREEBSD_FLAVORS}
+FLAVORS=${FREEBSD_FLAVORS:-"${ALL_FLAVORS}"}
 
 for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
   echo "Preparing FreeBSD architecture: ${FREEBSD_ARCH}"
