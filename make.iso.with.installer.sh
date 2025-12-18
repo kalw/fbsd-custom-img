@@ -36,24 +36,24 @@ get_all_latest_releases_list() {
 get_all_flavors_list() {
   # Fetch all config directories
   find . -type d -depth 1 \
-  | sed -e 's/\.\///' -e '/.git/d' \
+  | sed -e 's/\.\///' -e '/.git/d' -e '/tmp/d'\
   | awk '{printf $0","}' |sed -e 's/,$//'
 }
 
 # buildin img 
-FREEBSD_LATEST_RELEASES=$(get_all_latest_releases_list)
-FREEBSD_ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
-FREEBSD_ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
-FREEBSD_VERSIONS=${FREEBSD_VERSIONS:-"${FREEBSD_LATEST_RELEASES}"}
-FREEBSD_FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
+LATEST_RELEASES=$(get_all_latest_releases_list)
+ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
+ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
+VERSIONS=${FREEBSD_VERSIONS:-"${FREEBSD_LATEST_RELEASES}"}
+FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
 
-for FREEBSD_ARCH  in $(echo ${FREEBSD_ARCHS} | tr ',' ' '); do
-  echo "Preparing FreeBSD architecture: ${FREEBSD_ARCH}"
+for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
+  echo "Preparing FreeBSD architecture: ${ARCH}"
   # var for future utm/qemu work
   # FREEBSD_VM_ARCH=${FREEBSD_VM_ARCH:-"$(echo ${FREEBSD_ARCH} | awk '{print $2}')"}
   # FREEBSD_HDD_SIZE=${FREEBSD_HDD_SIZE:-"65536"}
   # FREEBSD_RAM_SIZE=${FREEBSD_RAM_SIZE:-"4096"}
-  for FREEBSD_VERSION in $(echo ${FREEBSD_VERSIONS} | tr ',' ' '); do
+  for FREEBSD_VERSION in $(echo ${VERSIONS} | tr ',' ' '); do
     echo "Preparing FreeBSD version: ${FREEBSD_VERSION}"
     FREEBSD_IMG_NAME="FreeBSD-${FREEBSD_VERSION}-RELEASE-$(echo ${FREEBSD_ARCH} |sed -e 's/amd64\/amd64/amd64/' -e 's/\//-/')-mini-memstick.img"
     FREEBSD_ISO_URL="https://download.freebsd.org/releases/${FREEBSD_ARCH}/ISO-IMAGES/${FREEBSD_VERSION}/${FREEBSD_IMG_NAME}"
