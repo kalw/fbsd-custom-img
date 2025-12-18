@@ -36,7 +36,7 @@ get_all_latest_releases_list() {
 get_all_flavors_list() {
   # Fetch all config directories
   find . -type d -depth 1 \
-  | sed -e 's/\.\///' -e '/.git/d' -e '/tmp/d'\
+  | sed -e 's/\.\///' -e '/.git/d' -e '/tmp/d' -e '/artifacts/d'\
   | awk '{printf $0","}' |sed -e 's/,$//'
 }
 
@@ -45,7 +45,7 @@ LATEST_RELEASES=$(get_all_latest_releases_list)
 ARCHS=${FREEBSD_VM_ARCH:-"arm64/aarch64,amd64/amd64"}
 ISO_DL_PATH=${FREEBSD_ISO_DL_PATH:-"${WORK_DIR}"}
 VERSIONS=${FREEBSD_VERSIONS:-"${LATEST_RELEASES}"}
-FLAVORS=${FREEBSD_FLAVORS:-"$(get_all_flavors_list)"}
+FLAVORS=${FREEBSD_FLAVORS}
 
 for FREEBSD_ARCH  in $(echo ${ARCHS} | tr ',' ' '); do
   echo "Preparing FreeBSD architecture: ${FREEBSD_ARCH}"
