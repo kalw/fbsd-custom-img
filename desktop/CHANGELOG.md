@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## desktop/v1.0.0 - 2025-12-22
+#### Features
+- use xz images - (b50d912) - kalw
+- cleaning up simplifying - (5941ff9) - kalw
+
+- - -
+
 ## desktop/v0.1.0 - 2025-10-31
 #### Features
 - <span style="background-color: #d73a49; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.85em;">BREAKING</span>cleaning up simplifying - (5941ff9) - kalw
