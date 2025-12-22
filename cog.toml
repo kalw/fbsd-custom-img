@@ -6,7 +6,7 @@ ignore_fixup_commits = true
 pre_package_bump_hooks = [
     "git config --global user.name \"release-bot\"",
     "git config --global user.email \"release-bot@ci.net\"",
-    "export FREEBSD_FLAVORS={{package}} ; cd .. ; ./make.iso.with.installer.sh"
+    "export FREEBSD_FLAVORS={{package}} ; rm -rf ./artifacts/ ; cd .. ; ./make.iso.with.installer.sh"
 ]
 
 post_package_bump_hooks = [
