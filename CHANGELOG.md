@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.0.0 - 1970-01-01
+### Packages
+- desktop locked to desktop/v1.0.0
+- minimal locked to minimal/v1.0.0
+- poudriere locked to poudriere/v1.0.0
+### Global changes
+
+- - -
+
 ## v0.1.0 - 2025-10-31
 ### Package updates
 - desktop bumped to desktop/v0.1.0
