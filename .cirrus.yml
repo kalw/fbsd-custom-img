@@ -17,6 +17,8 @@ task:
   name: Release Build
   only_if: $CIRRUS_BRANCH == 'main'
   env:
+    CIRRUS_CLONE_TAGS: true
+    CIRRUS_CLONE_DEPTH: 0
     GH_TOKEN: ENCRYPTED[!98aa8e375d86d9841967a09d3e24653f253ee217b0f72782bcf6162770ddb04637829ddb34c574338f7cbd76dcf14ab5!]
   script: |
     pkg install -y curl gh cocogitto git-lite
